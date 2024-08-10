@@ -1,0 +1,62 @@
+command /파티 [string] [string]:
+    trigger:
+        if arg-1 is "생성":
+            if arg-2 is set:
+                if {파티.%uuid of player%} is not set:
+                    if {파티번호::%arg 2%} is not set:
+                        add 1 to {파티번호}
+                        set {파티::%{파티번호}%} to arg-2
+                        set {파티.%uuid of player%} to arg-2
+                        set {파티장.%{파티번호}%} to uuid of player
+                        set {파티번호::%arg-2%} to {파티번호}
+                        send "%arg-2% &e파티를 생성하셨습니다."
+        if arg-1 is "초대":
+            if {파티.%uuid of player%} is set:
+                loop all players:
+                    if arg-2 is loop-player:
+                        if {파티.%uuid of loop-player%} is not set:
+                            send "%{파티.%uuid of player%}% &e파티에 초대 받았습니다." to loop-player
+                            send "%loop-player% &e님에게 파티 초대를 보냈습니다." to player
+                            set {파티초대.%uuid of loop-player%} to {파티.%uuid of player%}
+        if arg-1 is "수락":
+            if {파티초대.%uuid of player%} is set:
+                loop all players:
+                    if {파티초대.%uuid of player%} is {파티.%uuid of loop-player%}:
+                        send "%player% 님이 파티에 참여했습니다." to loop-player
+                set {파티.%uuid of player%} to {파티초대.%uuid of player%}
+                send "%{파티초대.%uuid of player%}% &e 파티의 초대를 수락했습니다."
+                
+                delete {파티초대.%uuid of player%}
+        if arg-1 is "거절":
+            if {파티초대.%uuid of player%} is set:
+                send "%{파티초대.%uuid of player%}% &e 파티의 초대를 거절했습니다."
+                delete {파티초대.%uuid of player%}
+        if arg-1 is "추방":
+            if {파티장.%{파티번호::%{파티.%uuid of player%}%}%} is uuid of player:
+                if arg-2 is not name of player:
+                    loop all players:
+                        if arg-2 is loop-player:
+                            if {파티.%uuid of loop-player%} is {파티.%uuid of player%}:
+                                delete {파티.%uuid of loop-player%}
+                                send "&e파티에서 추방되셨습니다." to loop-player
+
+        if arg-1 is "해체":
+            if {파티장.%{파티번호::%{파티.%uuid of player%}%}%} is uuid of player:
+                delete {파티::%{파티번호::%{파티.%uuid of player%}%}%}
+                delete {파티장.%{파티번호::%{파티.%uuid of player%}%}%}
+                delete {파티번호::%{파티.%uuid of player%}%}
+                loop all players:
+                    if loop-player is not player:
+                        if {파티.%uuid of loop-player} is {파티.%uuid of player%}:
+                            delete {파티.%uuid of loop player%}
+                            send "&e파티가 해체되었습니다." to loop-player
+                delete {파티.%uuid of player%}
+                send "&e파티가 해체되었습니다." to player
+               
+
+on tab complete of "/파티":
+    set tab completions for position 1 to "생성" and "초대" and "해체" and "추방" and "수락" and "거절"
+    if tab arg-1 is "초대":
+        loop all players:
+            if {파티.%uuid of loop-player%} is not set:
+                add loop-player to tab completions for position 2

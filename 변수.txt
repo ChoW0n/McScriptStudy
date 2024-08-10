@@ -1,0 +1,12 @@
+command /테스트:
+    trigger:
+        message players             #현존 변수
+        broadcast tps              #항존 변수
+        set {다변수::%{A}%} to 12   #다변수
+        set {독립} to true          #독립
+        set {자율.%{B}%} to true    #자율  
+
+variables:
+    {N} = 1234
+
+    
